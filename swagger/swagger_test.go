@@ -3,11 +3,12 @@ package swagger_test
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+	"testing"
+
 	"github.com/ronaksoft/ronycontrib/swagger"
 	"github.com/ronaksoft/ronykit/desc"
 	"github.com/ronaksoft/ronykit/std/bundle/rest"
-	"strings"
-	"testing"
 )
 
 type sampleReq struct {

@@ -2,13 +2,14 @@ package swagger
 
 import (
 	"fmt"
-	"github.com/go-openapi/spec"
-	"github.com/ronaksoft/ronykit/desc"
-	"github.com/ronaksoft/ronykit/std/bundle/rest"
 	"io"
 	"net/http"
 	"reflect"
 	"strings"
+
+	"github.com/go-openapi/spec"
+	"github.com/ronaksoft/ronykit/desc"
+	"github.com/ronaksoft/ronykit/std/bundle/rest"
 )
 
 type swaggerGen struct {
