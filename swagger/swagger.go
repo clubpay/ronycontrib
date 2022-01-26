@@ -242,6 +242,8 @@ func addDefinition(swag *spec.Swagger, rType reflect.Type) {
 		case reflect.Struct:
 			def.SetProperty(fName, wrapFunc(spec.RefProperty(fmt.Sprintf("#/definitions/%s", fType.Name()))))
 			addDefinition(swag, fType)
+		case reflect.Bool:
+			def.SetProperty(fName, wrapFunc(spec.BoolProperty()))
 		default:
 			fmt.Println(f.Type.Kind())
 			def.SetProperty(fName, wrapFunc(spec.StringProperty()))
