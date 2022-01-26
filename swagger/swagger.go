@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 
@@ -39,7 +40,17 @@ func (sg *swaggerGen) WithTag(tagName string) *swaggerGen {
 
 	return sg
 }
-func (sg swaggerGen) Generate(w io.Writer, services ...desc.Service) error {
+
+func (sg swaggerGen) WriteToFile(filename string, services ...desc.Service) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+
+	return sg.WriteTo(f, services...)
+}
+
+func (sg swaggerGen) WriteTo(w io.Writer, services ...desc.Service) error {
 	for _, s := range services {
 		addTag(sg.s, s)
 		for _, c := range s.Contracts {
@@ -125,6 +136,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 		swag.Paths.Paths[restPath] = pathItem
 	}
 }
+
 func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.Type) {
 	if inType.Kind() == reflect.Ptr {
 		inType = inType.Elem()
@@ -172,12 +184,14 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 		}
 	}
 }
+
 func addTag(swag *spec.Swagger, s desc.Service) {
 	swag.Tags = append(
 		swag.Tags,
 		spec.NewTag(s.Name, "", nil),
 	)
 }
+
 func addDefinition(swag *spec.Swagger, rType reflect.Type) {
 	if rType.Kind() == reflect.Ptr {
 		rType = rType.Elem()
@@ -236,6 +250,7 @@ func addDefinition(swag *spec.Swagger, rType reflect.Type) {
 
 	swag.Definitions[rType.Name()] = def
 }
+
 func setParameter(p *spec.Parameter, t reflect.Type) *spec.Parameter {
 	kind := t.Kind()
 	switch kind {
@@ -270,6 +285,7 @@ func setParameter(p *spec.Parameter, t reflect.Type) *spec.Parameter {
 
 	return p
 }
+
 func replacePath(path string) string {
 	sb := strings.Builder{}
 	for idx, p := range strings.Split(path, "/") {
