@@ -98,8 +98,8 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 		}
 
 		sg.setInput(op, restSel.Path, inType)
-		addDefinition(swag, inType)
-		addDefinition(swag, outType)
+		sg.addDefinition(swag, inType)
+		sg.addDefinition(swag, outType)
 
 		restPath := replacePath(restSel.Path)
 		pathItem := swag.Paths.Paths[restPath]
@@ -192,7 +192,7 @@ func addTag(swag *spec.Swagger, s desc.Service) {
 	)
 }
 
-func addDefinition(swag *spec.Swagger, rType reflect.Type) {
+func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 	if rType.Kind() == reflect.Ptr {
 		rType = rType.Elem()
 	}
@@ -207,7 +207,10 @@ func addDefinition(swag *spec.Swagger, rType reflect.Type) {
 	for i := 0; i < rType.NumField(); i++ {
 		f := rType.Field(i)
 		fType := f.Type
-		fName := f.Name
+		fName := f.Tag.Get(sg.tagName)
+		if fName == "" {
+			continue
+		}
 		var wrapFunc func(schema *spec.Schema) spec.Schema
 		switch fType.Kind() {
 		case reflect.Ptr:
@@ -226,6 +229,7 @@ func addDefinition(swag *spec.Swagger, rType reflect.Type) {
 			}
 		}
 
+	Switch:
 		switch fType.Kind() {
 		case reflect.String:
 			def.SetProperty(fName, wrapFunc(spec.StringProperty()))
@@ -241,11 +245,14 @@ func addDefinition(swag *spec.Swagger, rType reflect.Type) {
 			def.SetProperty(fName, wrapFunc(spec.Float64Property()))
 		case reflect.Struct:
 			def.SetProperty(fName, wrapFunc(spec.RefProperty(fmt.Sprintf("#/definitions/%s", fType.Name()))))
-			addDefinition(swag, fType)
+			sg.addDefinition(swag, fType)
 		case reflect.Bool:
 			def.SetProperty(fName, wrapFunc(spec.BoolProperty()))
+		case reflect.Ptr:
+			fType = fType.Elem()
+			goto Switch
 		default:
-			fmt.Println(f.Type.Kind())
+			fmt.Println(fType.Kind())
 			def.SetProperty(fName, wrapFunc(spec.StringProperty()))
 		}
 	}
