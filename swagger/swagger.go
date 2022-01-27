@@ -91,7 +91,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 			http.StatusOK,
 			spec.NewResponse().
 				WithSchema(
-					spec.RefProperty(fmt.Sprintf("#/definitions/%s", outType.Elem().Name())),
+					spec.RefProperty(fmt.Sprintf("#/definitions/%s", outType.Name())),
 				),
 		).
 		WithTags(serviceName).
