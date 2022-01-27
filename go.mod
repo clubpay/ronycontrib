@@ -5,6 +5,9 @@ go 1.17
 require (
 	github.com/go-openapi/spec v0.20.4
 	github.com/ronaksoft/ronykit v0.0.9
+	go.opentelemetry.io/contrib/propagators/b3 v1.3.0
+	go.opentelemetry.io/otel v1.3.0
+	go.opentelemetry.io/otel/trace v1.3.0
 )
 
 require (
@@ -12,6 +15,8 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/getsentry/sentry-go v0.12.0 // indirect
+	github.com/go-logr/logr v1.2.1 // indirect
+	github.com/go-logr/stdr v1.2.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect

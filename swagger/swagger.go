@@ -250,6 +250,7 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 			def.SetProperty(fName, wrapFunc(spec.BoolProperty()))
 		case reflect.Ptr:
 			fType = fType.Elem()
+
 			goto Switch
 		default:
 			fmt.Println(fType.Kind())
