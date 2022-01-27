@@ -52,10 +52,9 @@ func withTracer(tracerName string, propagator TracePropagator) func(svc ronykit.
 		traceCarrier = newW3CCarrier
 	}
 
-	tracer := otel.GetTracerProvider().Tracer(tracerName)
 	pre := func(ctx *ronykit.Context) {
 		userCtx := traceCtx.Extract(ctx.Context(), traceCarrier(ctx))
-		userCtx, _ = tracer.Start(userCtx, ctx.Route())
+		userCtx, _ = otel.Tracer(tracerName).Start(userCtx, ctx.Route())
 		ctx.SetUserContext(userCtx)
 
 		return

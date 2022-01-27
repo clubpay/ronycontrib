@@ -76,7 +76,14 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 	}
 
 	inType := reflect.TypeOf(c.Input)
+	if inType.Kind() == reflect.Ptr {
+		inType = inType.Elem()
+	}
+
 	outType := reflect.TypeOf(c.Output)
+	if outType.Kind() == reflect.Ptr {
+		outType = outType.Elem()
+	}
 
 	opID := c.Name
 	op := spec.NewOperation(opID).
