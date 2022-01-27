@@ -3,7 +3,7 @@ package tracekit
 import (
 	"strings"
 
-	mw "github.com/ronaksoft/ronycontrib/middleware"
+	"github.com/ronaksoft/ronycontrib/middleware"
 	"github.com/ronaksoft/ronykit"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
@@ -29,7 +29,7 @@ const (
 	b3Propagator
 )
 
-func B3Tracer(name string) ronykit.ServiceWrapper {
+func B3(name string) ronykit.ServiceWrapper {
 	return withTracer(name, b3Propagator)
 }
 
@@ -68,7 +68,7 @@ func withTracer(tracerName string, propagator TracePropagator) func(svc ronykit.
 	}
 
 	return func(svc ronykit.Service) ronykit.Service {
-		return mw.Wrap(svc, pre, post)
+		return middleware.Wrap(svc, pre, post)
 	}
 }
 

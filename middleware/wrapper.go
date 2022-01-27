@@ -1,4 +1,4 @@
-package mw
+package middleware
 
 import "github.com/ronaksoft/ronykit"
 
