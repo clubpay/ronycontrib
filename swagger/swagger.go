@@ -218,6 +218,13 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 		if fName == "" {
 			continue
 		}
+
+		// This is a hack to remove omitempty from tags
+		fNameParts := strings.Split(fName, ",")
+		if len(fNameParts) > 1 {
+			fName = strings.TrimSpace(fNameParts[0])
+		}
+
 		var wrapFunc func(schema *spec.Schema) spec.Schema
 		switch fType.Kind() {
 		case reflect.Ptr:
@@ -255,10 +262,15 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 			sg.addDefinition(swag, fType)
 		case reflect.Bool:
 			def.SetProperty(fName, wrapFunc(spec.BoolProperty()))
+		case reflect.Interface:
+			sub := &spec.Schema{}
+			sub.Typed("object", "")
+			def.SetProperty(fName, wrapFunc(sub))
 		case reflect.Ptr:
 			fType = fType.Elem()
 
 			goto Switch
+
 		default:
 			fmt.Println(fType.Kind())
 			def.SetProperty(fName, wrapFunc(spec.StringProperty()))
