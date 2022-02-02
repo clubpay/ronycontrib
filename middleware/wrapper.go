@@ -25,7 +25,10 @@ func (s serviceWrap) Contracts() []ronykit.Contract {
 }
 
 func (s serviceWrap) PreHandlers() []ronykit.Handler {
-	var handlers = []ronykit.Handler{s.pre}
+	var handlers = make([]ronykit.Handler, 0)
+	if s.pre != nil {
+		handlers = append(handlers, s.pre)
+	}
 
 	return append(handlers, s.svc.PreHandlers()...)
 }
