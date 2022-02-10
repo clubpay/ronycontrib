@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/spec"
 	"github.com/ronaksoft/ronykit/desc"
-	"github.com/ronaksoft/ronykit/std/bundle/rest"
+	"github.com/ronaksoft/ronykit/std/bundle/fasthttp"
 )
 
 type swaggerGen struct {
@@ -99,7 +99,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 		WithConsumes("application/json")
 
 	for _, sel := range c.Selectors {
-		restSel, ok := sel.(rest.Selector)
+		restSel, ok := sel.(fasthttp.Selector)
 		if !ok {
 			continue
 		}
@@ -111,11 +111,11 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 		restPath := replacePath(restSel.Path)
 		pathItem := swag.Paths.Paths[restPath]
 		switch strings.ToUpper(restSel.Method) {
-		case rest.MethodGet:
+		case fasthttp.MethodGet:
 			pathItem.Get = op
-		case rest.MethodDelete:
+		case fasthttp.MethodDelete:
 			pathItem.Delete = op
-		case rest.MethodPost:
+		case fasthttp.MethodPost:
 			op.AddParam(
 				spec.BodyParam(
 					inType.Name(),
@@ -123,7 +123,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 				),
 			)
 			pathItem.Post = op
-		case rest.MethodPut:
+		case fasthttp.MethodPut:
 			op.AddParam(
 				spec.BodyParam(
 					inType.Name(),
@@ -131,7 +131,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 				),
 			)
 			pathItem.Put = op
-		case rest.MethodPatch:
+		case fasthttp.MethodPatch:
 			op.AddParam(
 				spec.BodyParam(
 					inType.Name(),

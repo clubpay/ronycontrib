@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/go-openapi/spec v0.20.4
-	github.com/ronaksoft/ronykit v0.1.8
+	github.com/ronaksoft/ronykit v0.2.0
 	go.opentelemetry.io/contrib/propagators/b3 v1.3.0
 	go.opentelemetry.io/otel v1.3.0
 	go.opentelemetry.io/otel/trace v1.3.0

@@ -8,7 +8,7 @@ import (
 
 	"github.com/ronaksoft/ronycontrib/swagger"
 	"github.com/ronaksoft/ronykit/desc"
-	"github.com/ronaksoft/ronykit/std/bundle/rest"
+	"github.com/ronaksoft/ronykit/std/bundle/fasthttp"
 )
 
 type sampleReq struct {
@@ -44,8 +44,8 @@ var testService = (&desc.Service{
 	PostHandlers: nil,
 }).Add(
 	desc.NewContract().
-		AddSelector(rest.Selector{
-			Method: rest.MethodGet,
+		AddSelector(fasthttp.Selector{
+			Method: fasthttp.MethodGet,
 			Path:   "/some/:x/:y",
 		}).
 		SetInput(&sampleReq{}).
