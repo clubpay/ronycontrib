@@ -30,11 +30,11 @@ const (
 )
 
 func B3(name string) ronykit.ServiceWrapper {
-	return withTracer(name, b3Propagator)
+	return ronykit.ServiceWrapperFunc(withTracer(name, b3Propagator))
 }
 
 func W3C(name string) ronykit.ServiceWrapper {
-	return withTracer(name, w3cPropagator)
+	return ronykit.ServiceWrapperFunc(withTracer(name, w3cPropagator))
 }
 
 func withTracer(tracerName string, propagator TracePropagator) func(svc ronykit.Service) ronykit.Service {
