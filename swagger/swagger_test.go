@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ronaksoft/ronycontrib/swagger"
-	"github.com/ronaksoft/ronykit/desc"
-	"github.com/ronaksoft/ronykit/std/bundle/fasthttp"
+	"github.com/clubpay/ronycontrib/swagger"
+	"github.com/clubpay/ronykit/desc"
+	"github.com/clubpay/ronykit/std/bundle/fasthttp"
 )
 
 type sampleReq struct {

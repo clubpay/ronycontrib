@@ -1,10 +1,10 @@
-module github.com/ronaksoft/ronycontrib
+module github.com/clubpay/ronycontrib
 
 go 1.17
 
 require (
+	github.com/clubpay/ronykit v0.3.0
 	github.com/go-openapi/spec v0.20.4
-	github.com/ronaksoft/ronykit v0.2.6
 	go.opentelemetry.io/contrib/propagators/b3 v1.3.0
 	go.opentelemetry.io/otel v1.4.0
 	go.opentelemetry.io/otel/trace v1.4.0
@@ -30,5 +30,4 @@ require (
 	golang.org/x/net v0.0.0-20220111093109-d55c255bac03 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

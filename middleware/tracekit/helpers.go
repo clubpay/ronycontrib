@@ -1,7 +1,7 @@
 package tracekit
 
 import (
-	"github.com/ronaksoft/ronykit"
+	"github.com/clubpay/ronykit"
 	"go.opentelemetry.io/otel/trace"
 )
 

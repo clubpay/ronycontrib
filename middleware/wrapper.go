@@ -1,6 +1,6 @@
 package middleware
 
-import "github.com/ronaksoft/ronykit"
+import "github.com/clubpay/ronykit"
 
 type serviceWrap struct {
 	svc  ronykit.Service

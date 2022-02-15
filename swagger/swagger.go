@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/clubpay/ronykit"
+	"github.com/clubpay/ronykit/desc"
 	"github.com/go-openapi/spec"
-	"github.com/ronaksoft/ronykit"
-	"github.com/ronaksoft/ronykit/desc"
 )
 
 type swaggerGen struct {

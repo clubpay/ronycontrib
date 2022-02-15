@@ -3,8 +3,8 @@ package tracekit
 import (
 	"strings"
 
-	"github.com/ronaksoft/ronycontrib/middleware"
-	"github.com/ronaksoft/ronykit"
+	"github.com/clubpay/ronycontrib/middleware"
+	"github.com/clubpay/ronykit"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
