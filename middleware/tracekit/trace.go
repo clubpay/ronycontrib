@@ -3,12 +3,10 @@ package tracekit
 import (
 	"strings"
 
-	"github.com/clubpay/ronycontrib/middleware"
 	"github.com/clubpay/ronykit"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -29,15 +27,15 @@ const (
 	b3Propagator
 )
 
-func B3(name string) ronykit.ServiceWrapper {
-	return ronykit.ServiceWrapperFunc(withTracer(name, b3Propagator))
+func B3(name string) ronykit.HandlerFunc {
+	return withTracer(name, b3Propagator)
 }
 
-func W3C(name string) ronykit.ServiceWrapper {
-	return ronykit.ServiceWrapperFunc(withTracer(name, w3cPropagator))
+func W3C(name string) ronykit.HandlerFunc {
+	return withTracer(name, w3cPropagator)
 }
 
-func withTracer(tracerName string, propagator TracePropagator) func(svc ronykit.Service) ronykit.Service {
+func withTracer(tracerName string, propagator TracePropagator) ronykit.HandlerFunc {
 	var (
 		traceCtx     propagation.TextMapPropagator
 		traceCarrier func(ctx *ronykit.Context) propagation.TextMapCarrier
@@ -52,22 +50,15 @@ func withTracer(tracerName string, propagator TracePropagator) func(svc ronykit.
 		traceCarrier = newW3CCarrier
 	}
 
-	pre := func(ctx *ronykit.Context) {
-		userCtx := traceCtx.Extract(ctx.Context(), traceCarrier(ctx))
-		userCtx, _ = otel.Tracer(tracerName).Start(userCtx, ctx.Route())
+	return func(ctx *ronykit.Context) {
+		userCtx, span := otel.Tracer(tracerName).
+			Start(
+				traceCtx.Extract(ctx.Context(), traceCarrier(ctx)),
+				ctx.Route(),
+			)
 		ctx.SetUserContext(userCtx)
-
-		return
-	}
-	post := func(ctx *ronykit.Context) {
-		span := trace.SpanFromContext(ctx.Context())
+		ctx.Next()
 		span.End()
-
-		return
-	}
-
-	return func(svc ronykit.Service) ronykit.Service {
-		return middleware.Wrap(svc, pre, post)
 	}
 }
 

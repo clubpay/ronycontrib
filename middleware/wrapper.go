@@ -4,11 +4,11 @@ import "github.com/clubpay/ronykit"
 
 type serviceWrap struct {
 	svc  ronykit.Service
-	pre  ronykit.Handler
-	post ronykit.Handler
+	pre  ronykit.HandlerFunc
+	post ronykit.HandlerFunc
 }
 
-func Wrap(svc ronykit.Service, pre, post ronykit.Handler) *serviceWrap {
+func Wrap(svc ronykit.Service, pre, post ronykit.HandlerFunc) *serviceWrap {
 	return &serviceWrap{
 		svc:  svc,
 		pre:  pre,
@@ -24,8 +24,8 @@ func (s serviceWrap) Contracts() []ronykit.Contract {
 	return s.svc.Contracts()
 }
 
-func (s serviceWrap) PreHandlers() []ronykit.Handler {
-	var handlers = make([]ronykit.Handler, 0)
+func (s serviceWrap) PreHandlers() []ronykit.HandlerFunc {
+	var handlers = make([]ronykit.HandlerFunc, 0)
 	if s.pre != nil {
 		handlers = append(handlers, s.pre)
 	}
@@ -33,6 +33,6 @@ func (s serviceWrap) PreHandlers() []ronykit.Handler {
 	return append(handlers, s.svc.PreHandlers()...)
 }
 
-func (s serviceWrap) PostHandlers() []ronykit.Handler {
+func (s serviceWrap) PostHandlers() []ronykit.HandlerFunc {
 	return append(s.svc.PostHandlers(), s.post)
 }
