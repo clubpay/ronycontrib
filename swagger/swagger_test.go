@@ -38,6 +38,15 @@ func (x sampleRes) Marshal() ([]byte, error) {
 	return json.Marshal(x)
 }
 
+type sampleError struct {
+	Code        int    `json:"code"`
+	Description string `json:"description"`
+}
+
+func (x sampleError) Marshal() ([]byte, error) {
+	return json.Marshal(x)
+}
+
 var testService = (&desc.Service{
 	Name:         "testService",
 	PreHandlers:  nil,
@@ -50,6 +59,8 @@ var testService = (&desc.Service{
 		}).
 		SetInput(&sampleReq{}).
 		SetOutput(&sampleRes{}).
+		AddPossibleError(404, "ITEM1", &sampleError{}).
+		AddPossibleError(504, "SERVER", &sampleError{}).
 		SetHandler(nil),
 )
 

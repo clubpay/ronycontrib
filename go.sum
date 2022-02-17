@@ -8,8 +8,8 @@ github.com/andybalholm/brotli v1.0.4/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHG
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
 github.com/brianvoe/gofakeit/v6 v6.10.0 h1:0lZpqKzY2xVfjmCQBn9g9+SHIGg58SX+vu/ejuSVGMc=
 github.com/brianvoe/gofakeit/v6 v6.10.0/go.mod h1:palrJUk4Fyw38zIFB/uBZqsgzW5VsNllhHKKwAebzew=
-github.com/clubpay/ronykit v0.3.2 h1:M+SRecYn+ZGb/tZcIt7T3YsIKT/IufEpczADCifYQWo=
-github.com/clubpay/ronykit v0.3.2/go.mod h1:N8zfVKLYGn/l4Dn7X7tzPAWLYtVCsSVrCnzg8eqKLc4=
+github.com/clubpay/ronykit v0.3.3 h1:JO0uKP19B38u4JZWQShf90ugC+nk4RAivc8lKmGKwPw=
+github.com/clubpay/ronykit v0.3.3/go.mod h1:N8zfVKLYGn/l4Dn7X7tzPAWLYtVCsSVrCnzg8eqKLc4=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

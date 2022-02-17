@@ -98,6 +98,21 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 		WithProduces("application/json").
 		WithConsumes("application/json")
 
+	for _, pe := range c.PossibleErrors {
+		errType := reflect.TypeOf(pe.Message)
+		if errType.Kind() == reflect.Ptr {
+			errType = errType.Elem()
+		}
+
+		sg.addDefinition(swag, errType)
+		op.RespondsWith(
+			pe.Code,
+			spec.NewResponse().
+				WithSchema(
+					spec.RefProperty(fmt.Sprintf("#/definitions/%s", errType.Name())),
+				),
+		)
+	}
 	for _, sel := range c.Selectors {
 		restSel, ok := sel.(ronykit.RESTRouteSelector)
 		if !ok {
