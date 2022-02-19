@@ -69,7 +69,7 @@ func TestNewSwagger(t *testing.T) {
 	sg.WithTag("json")
 
 	sb := &strings.Builder{}
-	err := sg.WriteTo(sb, *testService)
+	err := sg.WriteTo(sb, testService)
 	if err != nil {
 		t.Fatal(err)
 	}

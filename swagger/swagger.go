@@ -41,7 +41,7 @@ func (sg *swaggerGen) WithTag(tagName string) *swaggerGen {
 	return sg
 }
 
-func (sg swaggerGen) WriteToFile(filename string, services ...desc.Service) error {
+func (sg swaggerGen) WriteToFile(filename string, services ...*desc.Service) error {
 	f, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (sg swaggerGen) WriteToFile(filename string, services ...desc.Service) erro
 	return sg.WriteTo(f, services...)
 }
 
-func (sg swaggerGen) WriteTo(w io.Writer, services ...desc.Service) error {
+func (sg swaggerGen) WriteTo(w io.Writer, services ...*desc.Service) error {
 	for _, s := range services {
 		addTag(sg.s, s)
 		for _, c := range s.Contracts {
@@ -207,7 +207,7 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 	}
 }
 
-func addTag(swag *spec.Swagger, s desc.Service) {
+func addTag(swag *spec.Swagger, s *desc.Service) {
 	swag.Tags = append(
 		swag.Tags,
 		spec.NewTag(s.Name, "", nil),
