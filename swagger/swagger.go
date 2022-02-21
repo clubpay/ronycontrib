@@ -75,15 +75,8 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 		}
 	}
 
-	inType := reflect.TypeOf(c.Input)
-	if inType.Kind() == reflect.Ptr {
-		inType = inType.Elem()
-	}
-
-	outType := reflect.TypeOf(c.Output)
-	if outType.Kind() == reflect.Ptr {
-		outType = outType.Elem()
-	}
+	inType := reflect.Indirect(reflect.ValueOf(c.Input)).Type()
+	outType := reflect.Indirect(reflect.ValueOf(c.Output)).Type()
 
 	opID := c.Name
 	op := spec.NewOperation(opID).
@@ -98,19 +91,18 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 		WithProduces("application/json").
 		WithConsumes("application/json")
 
+	possibleErrors := map[int][]string{}
 	for _, pe := range c.PossibleErrors {
-		errType := reflect.TypeOf(pe.Message)
-		if errType.Kind() == reflect.Ptr {
-			errType = errType.Elem()
-		}
-
+		errType := reflect.Indirect(reflect.ValueOf(pe)).Type()
 		sg.addDefinition(swag, errType)
+		possibleErrors[pe.Code] = append(possibleErrors[pe.Code], pe.Item)
 		op.RespondsWith(
 			pe.Code,
 			spec.NewResponse().
 				WithSchema(
 					spec.RefProperty(fmt.Sprintf("#/definitions/%s", errType.Name())),
-				),
+				).
+				WithDescription(fmt.Sprintf("Items: %s", strings.Join(possibleErrors[pe.Code], ","))),
 		)
 	}
 	for _, sel := range c.Selectors {
