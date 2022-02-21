@@ -102,7 +102,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 				WithSchema(
 					spec.RefProperty(fmt.Sprintf("#/definitions/%s", errType.Name())),
 				).
-				WithDescription(fmt.Sprintf("Items: %s", strings.Join(possibleErrors[pe.Code], ","))),
+				WithDescription(fmt.Sprintf("Items: %s", strings.Join(possibleErrors[pe.Code], ", "))),
 		)
 	}
 	for _, sel := range c.Selectors {
