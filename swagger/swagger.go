@@ -93,7 +93,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 
 	possibleErrors := map[int][]string{}
 	for _, pe := range c.PossibleErrors {
-		errType := reflect.Indirect(reflect.ValueOf(pe)).Type()
+		errType := reflect.Indirect(reflect.ValueOf(pe.Message)).Type()
 		sg.addDefinition(swag, errType)
 		possibleErrors[pe.Code] = append(possibleErrors[pe.Code], pe.Item)
 		op.RespondsWith(
