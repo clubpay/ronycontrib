@@ -2,13 +2,14 @@ package swagger_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/clubpay/ronycontrib/swagger"
 	"github.com/clubpay/ronykit/desc"
 	"github.com/clubpay/ronykit/std/bundle/fasthttp"
+	"github.com/smartystreets/assertions/should"
+	. "github.com/smartystreets/goconvey/convey"
 )
 
 type sampleReq struct {
@@ -74,15 +75,157 @@ var testService = (&desc.Service{
 )
 
 func TestNewSwagger(t *testing.T) {
-	sg := swagger.NewSwagger("TestTitle", "v0.0.1", "")
-	sg.WithTag("json")
+	Convey("GenerateSwaggerSpec", t, func(c C) {
+		sg := swagger.NewSwagger("TestTitle", "v0.0.1", "")
+		sg.WithTag("json")
 
-	sb := &strings.Builder{}
-	err := sg.WriteTo(sb, testService)
-	if err != nil {
-		t.Fatal(err)
+		sb := new(strings.Builder)
+		errWrite := sg.WriteTo(sb, testService)
+		So(errWrite, ShouldBeEmpty)
+
+		//spec, errMarshal := json.MarshalIndent(json.RawMessage(sb.String()), "", "   ")
+		expectedSpec := `{
+	"schemes": ["http", "https"],
+	"swagger": "2.0",
+	"info": {
+		"title": "TestTitle",
+		"version": "v0.0.1"
+	},
+	"tags": [{
+		"name": "testService"
+	}],
+	"paths": {
+		"/some/{x}/{y}": {
+			"get": {
+				"consumes": ["application/json"],
+				"parameters": [{
+					"format": "string",
+					"in": "path",
+					"name": "x",
+					"required": true,
+					"type": "string"
+				}, {
+					"format": "string",
+					"in": "path",
+					"name": "y",
+					"required": true,
+					"type": "string"
+				}, {
+					"format": "int64",
+					"in": "query",
+					"name": "z",
+					"required": true,
+					"type": "integer"
+				}, {
+					"format": "slice",
+					"in": "query",
+					"name": "w",
+					"required": true,
+					"type": "string"
+				}],
+				"produces": ["application/json"],
+				"responses": {
+					"200": {
+						"description": "",
+						"schema": {
+							"$ref": "#/definitions/sampleRes"
+						}
+					},
+					"404": {
+						"description": "Items: ITEM1",
+						"schema": {
+							"$ref": "#/definitions/sampleError"
+						}
+					},
+					"504": {
+						"description": "Items: SERVER",
+						"schema": {
+							"$ref": "#/definitions/sampleError"
+						}
+					}
+				},
+				"tags": ["testService"]
+			}
+		}
+	},
+	"definitions": {
+		"sampleError": {
+			"properties": {
+				"code": {
+					"format": "int64",
+					"type": "integer"
+				},
+				"description": {
+					"type": "string"
+				}
+			},
+			"type": "object"
+		},
+		"sampleReq": {
+			"properties": {
+				"w": {
+					"items": {
+						"type": "string"
+					},
+					"type": "array"
+				},
+				"x": {
+					"type": "string"
+				},
+				"y": {
+					"type": "string"
+				},
+				"z": {
+					"format": "int64",
+					"type": "integer"
+				}
+			},
+			"type": "object"
+		},
+		"sampleRes": {
+			"properties": {
+				"enumericSub": {
+					"type": "string"
+				},
+				"out1": {
+					"format": "int64",
+					"type": "integer"
+				},
+				"out2": {
+					"type": "string"
+				},
+				"sub": {
+					"$ref": "#/definitions/subRes"
+				},
+				"subs": {
+					"items": {
+						"$ref": "#/definitions/subRes"
+					},
+					"type": "array"
+				}
+			},
+			"type": "object"
+		},
+		"subRes": {
+			"properties": {
+				"another": {
+					"items": {
+						"items": {
+							"format": "int8",
+							"type": "integer"
+						},
+						"type": "array"
+					},
+					"type": "array"
+				},
+				"some": {
+					"type": "string"
+				}
+			},
+			"type": "object"
+		}
 	}
-
-	x, _ := json.MarshalIndent(json.RawMessage(sb.String()), "", "   ")
-	fmt.Println(string(x))
+}`
+		So(sb.String(), should.EqualJSON, expectedSpec)
+	})
 }

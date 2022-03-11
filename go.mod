@@ -5,6 +5,8 @@ go 1.17
 require (
 	github.com/clubpay/ronykit v0.3.5
 	github.com/go-openapi/spec v0.20.4
+	github.com/smartystreets/assertions v1.2.0
+	github.com/smartystreets/goconvey v1.7.2
 	go.opentelemetry.io/contrib/propagators/b3 v1.3.0
 	go.opentelemetry.io/otel v1.4.0
 	go.opentelemetry.io/otel/trace v1.4.0
@@ -21,7 +23,9 @@ require (
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
 	github.com/goccy/go-json v0.9.4 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/klauspost/compress v1.14.1 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/savsgio/gotils v0.0.0-20211223103454-d0aaa54c5899 // indirect
