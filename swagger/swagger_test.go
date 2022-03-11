@@ -28,11 +28,20 @@ type subRes struct {
 }
 
 type sampleRes struct {
-	Out1 int      `json:"out1"`
-	Out2 string   `json:"out2"`
-	Sub  subRes   `json:"sub"`
-	Subs []subRes `json:"subs"`
+	Out1        int         `json:"out1"`
+	Out2        string      `json:"out2"`
+	Sub         subRes      `json:"sub"`
+	Subs        []subRes    `json:"subs"`
+	EnumericSub EnumericSub `json:"enumericSub"`
 }
+
+type EnumericSub string
+
+const (
+	EnumericSubX EnumericSub = "X"
+	EnumericSubY EnumericSub = "Y"
+	EnumericSubZ EnumericSub = "Z"
+)
 
 func (x sampleRes) Marshal() ([]byte, error) {
 	return json.Marshal(x)
@@ -51,7 +60,7 @@ var testService = (&desc.Service{
 	Name:         "testService",
 	PreHandlers:  nil,
 	PostHandlers: nil,
-}).Add(
+}).AddContract(
 	desc.NewContract().
 		AddSelector(fasthttp.Selector{
 			Method: fasthttp.MethodGet,
