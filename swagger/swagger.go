@@ -166,7 +166,7 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 	}
 
 	for i := 0; i < inType.NumField(); i++ {
-		fName := inType.Field(i).Tag.Get(sg.tagName)
+		fName := getTag(inType.Field(i).Tag, sg.tagName)
 		if fName == "" {
 			continue
 		}
@@ -199,6 +199,20 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 	}
 }
 
+func getTag(tag reflect.StructTag, name string) string {
+	t := tag.Get(name)
+	if t == "" {
+		return t
+	}
+	// This is a hack to remove omitempty from tags
+	fNameParts := strings.Split(t, ",")
+	if len(fNameParts) > 1 {
+		t = strings.TrimSpace(fNameParts[0])
+	}
+
+	return t
+}
+
 func addTag(swag *spec.Swagger, s *desc.Service) {
 	swag.Tags = append(
 		swag.Tags,
@@ -221,15 +235,9 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 	for i := 0; i < rType.NumField(); i++ {
 		f := rType.Field(i)
 		fType := f.Type
-		fName := f.Tag.Get(sg.tagName)
+		fName := getTag(f.Tag, sg.tagName)
 		if fName == "" {
 			continue
-		}
-
-		// This is a hack to remove omitempty from tags
-		fNameParts := strings.Split(fName, ",")
-		if len(fNameParts) > 1 {
-			fName = strings.TrimSpace(fNameParts[0])
 		}
 
 		var wrapFunc func(schema *spec.Schema) spec.Schema
