@@ -52,7 +52,7 @@ func (sg swaggerGen) WriteToFile(filename string, services ...*desc.Service) err
 
 func (sg swaggerGen) WriteTo(w io.Writer, services ...*desc.Service) error {
 	for _, s := range services {
-		addTag(sg.s, s)
+		addSwaggerTag(sg.s, s)
 		for _, c := range s.Contracts {
 			sg.addOperation(sg.s, s.Name, c)
 		}
@@ -166,58 +166,68 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 	}
 
 	for i := 0; i < inType.NumField(); i++ {
-		fName := getTag(inType.Field(i).Tag, sg.tagName)
-		if fName == "" {
+		pt := getParsedStructTag(inType.Field(i).Tag, sg.tagName)
+		if pt.Name == "" {
 			continue
 		}
 		found := false
 		for _, pathParam := range pathParams {
-			if fName == pathParam {
+			if strings.ToLower(pt.Name) == strings.ToLower(pathParam) {
 				found = true
 			}
 		}
 
-		if found {
+		switch {
+		case found:
 			op.AddParam(
-				setParameter(
-					spec.PathParam(fName).
-						AsRequired().
-						NoEmptyValues(),
+				setSwaggerParamType(
+					spec.PathParam(pt.Name),
 					inType.Field(i).Type,
+					pt.Optional,
 				),
 			)
-		} else {
+		default:
 			op.AddParam(
-				setParameter(
-					spec.QueryParam(fName).
-						AsRequired().
-						NoEmptyValues(),
+				setSwaggerParamType(
+					spec.QueryParam(pt.Name),
 					inType.Field(i).Type,
+					pt.Optional,
 				),
 			)
 		}
+
 	}
 }
 
-func getTag(tag reflect.StructTag, name string) string {
-	t := tag.Get(name)
-	if t == "" {
-		return t
+type parsedStructTag struct {
+	Name     string
+	Optional bool
+}
+
+func getParsedStructTag(tag reflect.StructTag, name string) parsedStructTag {
+	pst := parsedStructTag{}
+	nameTag := tag.Get(name)
+	if nameTag == "" {
+		return pst
 	}
+
 	// This is a hack to remove omitempty from tags
-	fNameParts := strings.Split(t, ",")
+	fNameParts := strings.Split(nameTag, ",")
 	if len(fNameParts) > 1 {
-		t = strings.TrimSpace(fNameParts[0])
+		pst.Name = strings.TrimSpace(fNameParts[0])
 	}
 
-	return t
-}
+	swagTag := tag.Get("swag")
+	parts := strings.Split(swagTag, ";")
+	for _, p := range parts {
+		x := strings.TrimSpace(strings.ToLower(p))
+		switch {
+		case x == "optional":
+			pst.Optional = true
+		}
+	}
 
-func addTag(swag *spec.Swagger, s *desc.Service) {
-	swag.Tags = append(
-		swag.Tags,
-		spec.NewTag(s.Name, "", nil),
-	)
+	return pst
 }
 
 func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
@@ -235,8 +245,8 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 	for i := 0; i < rType.NumField(); i++ {
 		f := rType.Field(i)
 		fType := f.Type
-		fName := getTag(f.Tag, sg.tagName)
-		if fName == "" {
+		pt := getParsedStructTag(f.Tag, sg.tagName)
+		if pt.Name == "" {
 			continue
 		}
 
@@ -261,26 +271,26 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 	Switch:
 		switch fType.Kind() {
 		case reflect.String:
-			def.SetProperty(fName, wrapFunc(spec.StringProperty()))
+			def.SetProperty(pt.Name, wrapFunc(spec.StringProperty()))
 		case reflect.Int8, reflect.Uint8:
-			def.SetProperty(fName, wrapFunc(spec.ArrayProperty(spec.Int8Property())))
+			def.SetProperty(pt.Name, wrapFunc(spec.ArrayProperty(spec.Int8Property())))
 		case reflect.Int32, reflect.Uint32:
-			def.SetProperty(fName, wrapFunc(spec.Int32Property()))
+			def.SetProperty(pt.Name, wrapFunc(spec.Int32Property()))
 		case reflect.Int, reflect.Uint, reflect.Int64, reflect.Uint64:
-			def.SetProperty(fName, wrapFunc(spec.Int64Property()))
+			def.SetProperty(pt.Name, wrapFunc(spec.Int64Property()))
 		case reflect.Float32:
-			def.SetProperty(fName, wrapFunc(spec.Float32Property()))
+			def.SetProperty(pt.Name, wrapFunc(spec.Float32Property()))
 		case reflect.Float64:
-			def.SetProperty(fName, wrapFunc(spec.Float64Property()))
+			def.SetProperty(pt.Name, wrapFunc(spec.Float64Property()))
 		case reflect.Struct:
-			def.SetProperty(fName, wrapFunc(spec.RefProperty(fmt.Sprintf("#/definitions/%s", fType.Name()))))
+			def.SetProperty(pt.Name, wrapFunc(spec.RefProperty(fmt.Sprintf("#/definitions/%s", fType.Name()))))
 			sg.addDefinition(swag, fType)
 		case reflect.Bool:
-			def.SetProperty(fName, wrapFunc(spec.BoolProperty()))
+			def.SetProperty(pt.Name, wrapFunc(spec.BoolProperty()))
 		case reflect.Interface:
 			sub := &spec.Schema{}
 			sub.Typed("object", "")
-			def.SetProperty(fName, wrapFunc(sub))
+			def.SetProperty(pt.Name, wrapFunc(sub))
 		case reflect.Ptr:
 			fType = fType.Elem()
 
@@ -288,14 +298,26 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 
 		default:
 			fmt.Println(fType.Kind())
-			def.SetProperty(fName, wrapFunc(spec.StringProperty()))
+			def.SetProperty(pt.Name, wrapFunc(spec.StringProperty()))
 		}
 	}
 
 	swag.Definitions[rType.Name()] = def
 }
 
-func setParameter(p *spec.Parameter, t reflect.Type) *spec.Parameter {
+func addSwaggerTag(swag *spec.Swagger, s *desc.Service) {
+	swag.Tags = append(
+		swag.Tags,
+		spec.NewTag(s.Name, s.Description, nil),
+	)
+}
+
+func setSwaggerParamType(p *spec.Parameter, t reflect.Type, optional bool) *spec.Parameter {
+	if optional {
+		p.AsOptional()
+	} else {
+		p.AsRequired()
+	}
 	kind := t.Kind()
 	switch kind {
 	case reflect.Slice:
@@ -330,6 +352,8 @@ func setParameter(p *spec.Parameter, t reflect.Type) *spec.Parameter {
 	return p
 }
 
+// replacePath converts the ronykit mux format urls to swagger url format.
+// e.g. /some/path/:x1 --> /some/path/{x1}
 func replacePath(path string) string {
 	sb := strings.Builder{}
 	for idx, p := range strings.Split(path, "/") {
