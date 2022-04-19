@@ -54,6 +54,7 @@ func (sg swaggerGen) WriteTo(w io.Writer, services ...*desc.Service) error {
 	for _, s := range services {
 		addSwaggerTag(sg.s, s)
 		for _, c := range s.Contracts {
+			c.PossibleErrors = append(c.PossibleErrors, s.PossibleErrors...)
 			sg.addOperation(sg.s, s.Name, c)
 		}
 	}
