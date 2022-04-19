@@ -51,7 +51,7 @@ var testService = (&desc.Service{
 	Name:         "testService",
 	PreHandlers:  nil,
 	PostHandlers: nil,
-}).Add(
+}).AddContract(
 	desc.NewContract().
 		AddSelector(fasthttp.Selector{
 			Method: fasthttp.MethodGet,

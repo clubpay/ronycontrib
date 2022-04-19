@@ -195,7 +195,6 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 				),
 			)
 		}
-
 	}
 }
 
