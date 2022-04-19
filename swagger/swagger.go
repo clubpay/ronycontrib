@@ -200,8 +200,9 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 }
 
 type parsedStructTag struct {
-	Name     string
-	Optional bool
+	Name           string
+	Optional       bool
+	PossibleValues []string
 }
 
 func getParsedStructTag(tag reflect.StructTag, name string) parsedStructTag {
@@ -224,6 +225,14 @@ func getParsedStructTag(tag reflect.StructTag, name string) parsedStructTag {
 		switch {
 		case x == "optional":
 			pst.Optional = true
+		case strings.HasPrefix(x, "enum:"):
+			xx := strings.SplitN(p, ":", 2)
+			if len(xx) == 2 {
+				xx = strings.Split(xx[1], ",")
+				for _, v := range xx {
+					pst.PossibleValues = append(pst.PossibleValues, strings.TrimSpace(v))
+				}
+			}
 		}
 	}
 
