@@ -39,7 +39,7 @@ func (x sampleRes) Marshal() ([]byte, error) {
 }
 
 type sampleError struct {
-	Code        int    `json:"code"`
+	Code        int    `json:"code" swag:"enum:504,503"`
 	Description string `json:"description"`
 }
 
@@ -51,18 +51,29 @@ var testService = (&desc.Service{
 	Name:         "testService",
 	PreHandlers:  nil,
 	PostHandlers: nil,
-}).AddContract(
-	desc.NewContract().
-		AddSelector(fasthttp.Selector{
-			Method: fasthttp.MethodGet,
-			Path:   "/some/:x/:y",
-		}).
-		SetInput(&sampleReq{}).
-		SetOutput(&sampleRes{}).
-		AddPossibleError(404, "ITEM1", &sampleError{}).
-		AddPossibleError(504, "SERVER", &sampleError{}).
-		SetHandler(nil),
-)
+}).
+	AddContract(
+		desc.NewContract().
+			AddSelector(fasthttp.Selector{
+				Method: fasthttp.MethodGet,
+				Path:   "/some/:x/:y",
+			}).
+			SetInput(&sampleReq{}).
+			SetOutput(&sampleRes{}).
+			AddPossibleError(404, "ITEM1", &sampleError{}).
+			AddPossibleError(504, "SERVER", &sampleError{}).
+			SetHandler(nil),
+	).
+	AddContract(
+		desc.NewContract().
+			AddSelector(fasthttp.Selector{
+				Method: fasthttp.MethodPost,
+				Path:   "/some/:x/:y",
+			}).
+			SetInput(&sampleReq{}).
+			SetOutput(&sampleRes{}).
+			SetHandler(nil),
+	)
 
 func TestNewSwagger(t *testing.T) {
 	sg := swagger.NewSwagger("TestTitle", "v0.0.1", "")

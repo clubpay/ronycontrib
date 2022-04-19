@@ -213,7 +213,7 @@ func getParsedStructTag(tag reflect.StructTag, name string) parsedStructTag {
 
 	// This is a hack to remove omitempty from tags
 	fNameParts := strings.Split(nameTag, ",")
-	if len(fNameParts) > 1 {
+	if len(fNameParts) > 0 {
 		pst.Name = strings.TrimSpace(fNameParts[0])
 	}
 
@@ -258,55 +258,71 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
 			continue
 		}
 
-		var wrapFunc func(schema *spec.Schema) spec.Schema
+		var wrapFuncChain schemaWrapperChain
 		switch fType.Kind() {
 		case reflect.Ptr:
 			fType = fType.Elem()
-			wrapFunc = func(schema *spec.Schema) spec.Schema {
-				return *schema
-			}
+			wrapFuncChain.Add(
+				func(schema *spec.Schema) *spec.Schema {
+					return schema
+				},
+			)
 		case reflect.Slice:
-			wrapFunc = func(item *spec.Schema) spec.Schema {
-				return *spec.ArrayProperty(item)
-			}
 			fType = fType.Elem()
+			wrapFuncChain.Add(
+				func(schema *spec.Schema) *spec.Schema {
+					return spec.ArrayProperty(schema)
+				},
+			)
 		default:
-			wrapFunc = func(schema *spec.Schema) spec.Schema {
-				return *schema
-			}
+			wrapFuncChain.Add(
+				func(schema *spec.Schema) *spec.Schema {
+					return schema
+				},
+			)
+		}
+
+		if len(pt.PossibleValues) > 0 {
+			wrapFuncChain.Add(
+				func(schema *spec.Schema) *spec.Schema {
+					for _, v := range pt.PossibleValues {
+						schema.Enum = append(schema.Enum, v)
+					}
+
+					return schema
+				},
+			)
 		}
 
 	Switch:
 		switch fType.Kind() {
 		case reflect.String:
-			def.SetProperty(pt.Name, wrapFunc(spec.StringProperty()))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.StringProperty()))
 		case reflect.Int8, reflect.Uint8:
-			def.SetProperty(pt.Name, wrapFunc(spec.ArrayProperty(spec.Int8Property())))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.ArrayProperty(spec.Int8Property())))
 		case reflect.Int32, reflect.Uint32:
-			def.SetProperty(pt.Name, wrapFunc(spec.Int32Property()))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.Int32Property()))
 		case reflect.Int, reflect.Uint, reflect.Int64, reflect.Uint64:
-			def.SetProperty(pt.Name, wrapFunc(spec.Int64Property()))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.Int64Property()))
 		case reflect.Float32:
-			def.SetProperty(pt.Name, wrapFunc(spec.Float32Property()))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.Float32Property()))
 		case reflect.Float64:
-			def.SetProperty(pt.Name, wrapFunc(spec.Float64Property()))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.Float64Property()))
 		case reflect.Struct:
-			def.SetProperty(pt.Name, wrapFunc(spec.RefProperty(fmt.Sprintf("#/definitions/%s", fType.Name()))))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.RefProperty(fmt.Sprintf("#/definitions/%s", fType.Name()))))
 			sg.addDefinition(swag, fType)
 		case reflect.Bool:
-			def.SetProperty(pt.Name, wrapFunc(spec.BoolProperty()))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.BoolProperty()))
 		case reflect.Interface:
 			sub := &spec.Schema{}
 			sub.Typed("object", "")
-			def.SetProperty(pt.Name, wrapFunc(sub))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(sub))
 		case reflect.Ptr:
 			fType = fType.Elem()
 
 			goto Switch
-
 		default:
-			fmt.Println(fType.Kind())
-			def.SetProperty(pt.Name, wrapFunc(spec.StringProperty()))
+			def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.StringProperty()))
 		}
 	}
 
@@ -378,4 +394,22 @@ func replacePath(path string) string {
 	}
 
 	return sb.String()
+}
+
+type schemaWrapper func(schema *spec.Schema) *spec.Schema
+
+type schemaWrapperChain []schemaWrapper
+
+func (chain *schemaWrapperChain) Add(w schemaWrapper) schemaWrapperChain {
+	*chain = append(*chain, w)
+
+	return *chain
+}
+
+func (chain schemaWrapperChain) Apply(schema *spec.Schema) spec.Schema {
+	for _, w := range chain {
+		schema = w(schema)
+	}
+
+	return *schema
 }
