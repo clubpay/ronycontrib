@@ -181,7 +181,7 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 		switch {
 		case found:
 			op.AddParam(
-				setSwaggerParamType(
+				setSwaggerParam(
 					spec.PathParam(pt.Name),
 					inType.Field(i).Type,
 					pt.Optional,
@@ -189,7 +189,7 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 			)
 		default:
 			op.AddParam(
-				setSwaggerParamType(
+				setSwaggerParam(
 					spec.QueryParam(pt.Name),
 					inType.Field(i).Type,
 					pt.Optional,
@@ -197,46 +197,6 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 			)
 		}
 	}
-}
-
-type parsedStructTag struct {
-	Name           string
-	Optional       bool
-	PossibleValues []string
-}
-
-func getParsedStructTag(tag reflect.StructTag, name string) parsedStructTag {
-	pst := parsedStructTag{}
-	nameTag := tag.Get(name)
-	if nameTag == "" {
-		return pst
-	}
-
-	// This is a hack to remove omitempty from tags
-	fNameParts := strings.Split(nameTag, ",")
-	if len(fNameParts) > 0 {
-		pst.Name = strings.TrimSpace(fNameParts[0])
-	}
-
-	swagTag := tag.Get("swag")
-	parts := strings.Split(swagTag, ";")
-	for _, p := range parts {
-		x := strings.TrimSpace(strings.ToLower(p))
-		switch {
-		case x == "optional":
-			pst.Optional = true
-		case strings.HasPrefix(x, "enum:"):
-			xx := strings.SplitN(p, ":", 2)
-			if len(xx) == 2 {
-				xx = strings.Split(xx[1], ",")
-				for _, v := range xx {
-					pst.PossibleValues = append(pst.PossibleValues, strings.TrimSpace(v))
-				}
-			}
-		}
-	}
-
-	return pst
 }
 
 func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
@@ -337,7 +297,7 @@ func addSwaggerTag(swag *spec.Swagger, s *desc.Service) {
 	)
 }
 
-func setSwaggerParamType(p *spec.Parameter, t reflect.Type, optional bool) *spec.Parameter {
+func setSwaggerParam(p *spec.Parameter, t reflect.Type, optional bool) *spec.Parameter {
 	if optional {
 		p.AsOptional()
 	} else {
