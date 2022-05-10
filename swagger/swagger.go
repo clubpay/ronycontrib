@@ -106,7 +106,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 				WithDescription(fmt.Sprintf("Items: %s", strings.Join(possibleErrors[pe.Code], ", "))),
 		)
 	}
-	for _, sel := range c.Selectors {
+	for _, sel := range c.RouteSelectors {
 		restSel, ok := sel.(ronykit.RESTRouteSelector)
 		if !ok {
 			continue
