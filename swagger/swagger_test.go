@@ -8,7 +8,7 @@ import (
 
 	"github.com/clubpay/ronycontrib/swagger"
 	"github.com/clubpay/ronykit/desc"
-	"github.com/clubpay/ronykit/std/bundle/fasthttp"
+	"github.com/clubpay/ronykit/std/gateway/fasthttp"
 )
 
 type sampleReq struct {
