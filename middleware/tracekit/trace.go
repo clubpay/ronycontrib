@@ -1,6 +1,9 @@
 package tracekit
 
 import (
+	"go.opentelemetry.io/otel/attribute"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	"go.opentelemetry.io/otel/trace"
 	"strings"
 
 	"github.com/clubpay/ronykit"
@@ -27,21 +30,37 @@ const (
 	b3Propagator
 )
 
-func B3(name string) ronykit.HandlerFunc {
-	return withTracer(name, b3Propagator)
+func B3(name string, opts ...Option) ronykit.HandlerFunc {
+	cfg := &config{
+		tracerName: name,
+		propagator: b3Propagator,
+	}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	return withTracer(cfg)
 }
 
-func W3C(name string) ronykit.HandlerFunc {
-	return withTracer(name, w3cPropagator)
+func W3C(name string, opts ...Option) ronykit.HandlerFunc {
+	cfg := &config{
+		tracerName: name,
+		propagator: w3cPropagator,
+	}
+	for _, opt := range opts {
+		opt(cfg)
+	}
+
+	return withTracer(cfg)
 }
 
-func withTracer(tracerName string, propagator TracePropagator) ronykit.HandlerFunc {
+func withTracer(cfg *config) ronykit.HandlerFunc {
 	var (
 		traceCtx     propagation.TextMapPropagator
 		traceCarrier func(ctx *ronykit.Context) propagation.TextMapCarrier
 	)
 
-	switch propagator {
+	switch cfg.propagator {
 	case b3Propagator:
 		traceCtx = b3.New(b3.WithInjectEncoding(b3.B3SingleHeader))
 		traceCarrier = newB3Carrier
@@ -50,11 +69,28 @@ func withTracer(tracerName string, propagator TracePropagator) ronykit.HandlerFu
 		traceCarrier = newW3CCarrier
 	}
 
+	var (
+		spanOpts []trace.SpanStartOption
+		kvs      []attribute.KeyValue
+	)
+
+	if cfg.serviceName != "" {
+		kvs = append(kvs, semconv.ServiceNameKey.String(cfg.serviceName))
+	}
+	if cfg.env != "" {
+		kvs = append(kvs, semconv.DeploymentEnvironmentKey.String(cfg.env))
+	}
+
+	if len(kvs) > 0 {
+		spanOpts = append(spanOpts, trace.WithAttributes(kvs...))
+	}
+
 	return func(ctx *ronykit.Context) {
-		userCtx, span := otel.Tracer(tracerName).
+		userCtx, span := otel.Tracer(cfg.tracerName).
 			Start(
 				traceCtx.Extract(ctx.Context(), traceCarrier(ctx)),
 				ctx.Route(),
+				spanOpts...,
 			)
 		ctx.SetUserContext(userCtx)
 		ctx.Next()

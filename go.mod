@@ -6,8 +6,8 @@ require (
 	github.com/clubpay/ronykit v0.4.7
 	github.com/go-openapi/spec v0.20.5
 	go.opentelemetry.io/contrib/propagators/b3 v1.6.0
-	go.opentelemetry.io/otel v1.6.3
-	go.opentelemetry.io/otel/trace v1.6.3
+	go.opentelemetry.io/otel v1.7.0
+	go.opentelemetry.io/otel/trace v1.7.0
 )
 
 require (
