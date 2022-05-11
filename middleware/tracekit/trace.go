@@ -86,6 +86,16 @@ func withTracer(cfg *config) ronykit.HandlerFunc {
 	}
 
 	return func(ctx *ronykit.Context) {
+		rc, ok := ctx.Conn().(ronykit.RESTConn)
+		if ok {
+			spanOpts = append(spanOpts,
+				trace.WithAttributes(
+					semconv.HTTPMethodKey.String(rc.GetMethod()),
+					semconv.HTTPStatusCodeKey.Int(ctx.GetStatusCode()),
+				),
+			)
+		}
+
 		userCtx, span := otel.Tracer(cfg.tracerName).
 			Start(
 				traceCtx.Extract(ctx.Context(), traceCarrier(ctx)),
