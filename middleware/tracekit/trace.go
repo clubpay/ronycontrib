@@ -1,15 +1,15 @@
 package tracekit
 
 import (
-	"go.opentelemetry.io/otel/attribute"
-	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
-	"go.opentelemetry.io/otel/trace"
 	"strings"
 
 	"github.com/clubpay/ronykit"
 	"go.opentelemetry.io/contrib/propagators/b3"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/propagation"
+	semconv "go.opentelemetry.io/otel/semconv/v1.7.0"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -73,6 +73,10 @@ func withTracer(cfg *config) ronykit.HandlerFunc {
 		spanOpts []trace.SpanStartOption
 		kvs      []attribute.KeyValue
 	)
+
+	for k, v := range cfg.tags {
+		kvs = append(kvs, attribute.String(k, v))
+	}
 
 	if cfg.serviceName != "" {
 		kvs = append(kvs, semconv.ServiceNameKey.String(cfg.serviceName))

@@ -7,6 +7,7 @@ type config struct {
 	propagator  TracePropagator
 	serviceName string
 	env         string
+	tags        map[string]string
 }
 
 func ServiceName(name string) Option {
@@ -18,5 +19,11 @@ func ServiceName(name string) Option {
 func Env(env string) Option {
 	return func(cfg *config) {
 		cfg.env = env
+	}
+}
+
+func WithTags(tags map[string]string) Option {
+	return func(cfg *config) {
+		cfg.tags = tags
 	}
 }
