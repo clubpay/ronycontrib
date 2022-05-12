@@ -100,6 +100,15 @@ func withTracer(cfg *config) ronykit.HandlerFunc {
 			)
 		}
 
+		if cfg.dynTags != nil {
+			dynTags := cfg.dynTags(ctx.Limited())
+			kvs := make([]attribute.KeyValue, 0, len(dynTags))
+			for k, v := range cfg.dynTags(ctx.Limited()) {
+				kvs = append(kvs, attribute.String(k, v))
+			}
+			spanOpts = append(spanOpts, trace.WithAttributes(kvs...))
+		}
+
 		userCtx, span := otel.Tracer(cfg.tracerName).
 			Start(
 				traceCtx.Extract(ctx.Context(), traceCarrier(ctx)),

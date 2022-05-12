@@ -4,8 +4,8 @@ github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdko
 github.com/andybalholm/brotli v1.0.4 h1:V7DdXeJtZscaqfNuAdSRuRFzuiKlHSC/Zh3zl9qY3JY=
 github.com/andybalholm/brotli v1.0.4/go.mod h1:fO7iG3H7G2nSZ7m0zPUDn85XEX2GTukHGRSepvi9Eig=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
-github.com/clubpay/ronykit v0.4.8 h1:Ge3uo0orA7Vxr7B/WZIDC7Enb11FpPbf4rAgdNWIF0E=
-github.com/clubpay/ronykit v0.4.8/go.mod h1:0CpUOlI0DnxpylKLLjUf7s9nJA5PgvC0A1gnfKxUvdE=
+github.com/clubpay/ronykit v0.4.11 h1:CGrXfP1I6W+0v6mofA5X+m43DTYZpKkTThcJVaTabcQ=
+github.com/clubpay/ronykit v0.4.11/go.mod h1:0CpUOlI0DnxpylKLLjUf7s9nJA5PgvC0A1gnfKxUvdE=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=

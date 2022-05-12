@@ -1,5 +1,7 @@
 package tracekit
 
+import "github.com/clubpay/ronykit"
+
 type Option func(cfg *config)
 
 type config struct {
@@ -8,6 +10,7 @@ type config struct {
 	serviceName string
 	env         string
 	tags        map[string]string
+	dynTags     func(ctx *ronykit.LimitedContext) map[string]string
 }
 
 func ServiceName(name string) Option {
@@ -25,5 +28,11 @@ func Env(env string) Option {
 func WithTags(tags map[string]string) Option {
 	return func(cfg *config) {
 		cfg.tags = tags
+	}
+}
+
+func WithDynamicTags(f func(ctx *ronykit.LimitedContext) map[string]string) Option {
+	return func(cfg *config) {
+		cfg.dynTags = f
 	}
 }
