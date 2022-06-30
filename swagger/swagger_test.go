@@ -41,40 +41,44 @@ type anotherRes struct {
     Out2 string `json:"out2"`
 }
 
-var testService = (&desc.Service{
-    Name:         "testService",
-    PreHandlers:  nil,
-    PostHandlers: nil,
-}).
-        AddContract(
-            desc.NewContract().
-                    AddSelector(fasthttp.Selector{
-                        Method: fasthttp.MethodGet,
-                        Path:   "/some/:x/:y",
-                    }).
-                SetInput(&sampleReq{}).
-                SetOutput(&sampleRes{}).
-                AddPossibleError(404, "ITEM1", &sampleError{}).
-                AddPossibleError(504, "SERVER", &sampleError{}).
-                SetHandler(nil),
-        ).
-        AddContract(
-            desc.NewContract().
-                    AddSelector(fasthttp.Selector{
-                        Method: fasthttp.MethodPost,
-                        Path:   "/some/:x/:y",
-                    }).
-                SetInput(&sampleReq{}).
-                SetOutput(&anotherRes{}).
-                SetHandler(nil),
-        )
+type testService struct{}
+
+func (t testService) Desc() *desc.Service {
+    return (&desc.Service{
+        Name:         "testService",
+        PreHandlers:  nil,
+        PostHandlers: nil,
+    }).
+            AddContract(
+                desc.NewContract().
+                        AddSelector(fasthttp.Selector{
+                            Method: fasthttp.MethodGet,
+                            Path:   "/some/:x/:y",
+                        }).
+                    SetInput(&sampleReq{}).
+                    SetOutput(&sampleRes{}).
+                    AddPossibleError(404, "ITEM1", &sampleError{}).
+                    AddPossibleError(504, "SERVER", &sampleError{}).
+                    SetHandler(nil),
+            ).
+            AddContract(
+                desc.NewContract().
+                        AddSelector(fasthttp.Selector{
+                            Method: fasthttp.MethodPost,
+                            Path:   "/some/:x/:y",
+                        }).
+                    SetInput(&sampleReq{}).
+                    SetOutput(&anotherRes{}).
+                    SetHandler(nil),
+            )
+}
 
 func TestNewSwagger(t *testing.T) {
     sg := swagger.NewSwagger("TestTitle", "v0.0.1", "")
     sg.WithTag("json")
 
     sb := &strings.Builder{}
-    err := sg.WriteTo(sb, testService)
+    err := sg.WriteTo(sb, testService{})
     if err != nil {
         t.Fatal(err)
     }
