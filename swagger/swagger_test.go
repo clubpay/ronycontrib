@@ -7,6 +7,7 @@ import (
     "testing"
 
     "github.com/clubpay/ronycontrib/swagger"
+    "github.com/clubpay/ronykit"
     "github.com/clubpay/ronykit/desc"
     "github.com/clubpay/ronykit/std/gateway/fasthttp"
 )
@@ -31,8 +32,22 @@ type sampleRes struct {
 }
 
 type sampleError struct {
-    Code        int    `json:"code" swag:"enum:504,503"`
-    Description string `json:"description"`
+    Code int `json:"code" swag:"enum:504,503"`
+    Item string
+}
+
+var _ ronykit.ErrorMessage = (*sampleError)(nil)
+
+func (e sampleError) GetCode() int {
+    return e.Code
+}
+
+func (e sampleError) GetItem() string {
+    return e.Item
+}
+
+func (e sampleError) Error() string {
+    return fmt.Sprintf("%d: %s", e.Code, e.Item)
 }
 
 type anotherRes struct {
@@ -57,8 +72,8 @@ func (t testService) Desc() *desc.Service {
                         }).
                     SetInput(&sampleReq{}).
                     SetOutput(&sampleRes{}).
-                    AddPossibleError(404, "ITEM1", &sampleError{}).
-                    AddPossibleError(504, "SERVER", &sampleError{}).
+                    AddError(&sampleError{404, "ITEM1"}).
+                    AddError(&sampleError{504, "SERVER"}).
                     SetHandler(nil),
             ).
             AddContract(

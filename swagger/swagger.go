@@ -78,21 +78,20 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
     }
 
     inType := reflect.Indirect(reflect.ValueOf(c.Input)).Type()
+    outType := reflect.Indirect(reflect.ValueOf(c.Output)).Type()
     opID := c.Name
     op := spec.NewOperation(opID).
         WithTags(serviceName).
         WithProduces("application/json").
-        WithConsumes("application/json")
-    for _, out := range c.Outputs {
-        outType := reflect.Indirect(reflect.ValueOf(out)).Type()
-        op.RespondsWith(
-            http.StatusOK,
-            spec.NewResponse().
-                    WithSchema(
-                        spec.RefProperty(fmt.Sprintf("#/definitions/%s", outType.Name())),
-                    ),
-        )
-    }
+        WithConsumes("application/json").
+            RespondsWith(
+                http.StatusOK,
+                spec.NewResponse().
+                        WithSchema(
+                            spec.RefProperty(fmt.Sprintf("#/definitions/%s", outType.Name())),
+                        ),
+            )
+
     possibleErrors := map[int][]string{}
     for _, pe := range c.PossibleErrors {
         errType := reflect.Indirect(reflect.ValueOf(pe.Message)).Type()
@@ -115,10 +114,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
 
         sg.setInput(op, restSel.GetPath(), inType)
         sg.addDefinition(swag, inType)
-        for _, out := range c.Outputs {
-            outType := reflect.Indirect(reflect.ValueOf(out)).Type()
-            sg.addDefinition(swag, outType)
-        }
+        sg.addDefinition(swag, outType)
 
         restPath := replacePath(restSel.GetPath())
         pathItem := swag.Paths.Paths[restPath]

@@ -3,7 +3,7 @@ module github.com/clubpay/ronycontrib
 go 1.17
 
 require (
-	github.com/clubpay/ronykit v0.5.4
+	github.com/clubpay/ronykit v0.6.1
 	github.com/go-openapi/spec v0.20.6
 	go.opentelemetry.io/contrib/propagators/b3 v1.6.0
 	go.opentelemetry.io/otel v1.7.0
