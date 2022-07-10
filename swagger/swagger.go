@@ -107,7 +107,7 @@ func (sg swaggerGen) addOperation(swag *spec.Swagger, serviceName string, c desc
         )
     }
     for _, sel := range c.RouteSelectors {
-        restSel, ok := sel.(ronykit.RESTRouteSelector)
+        restSel, ok := sel.Selector.(ronykit.RESTRouteSelector)
         if !ok {
             continue
         }
