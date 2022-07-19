@@ -156,6 +156,9 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
     if inType.Kind() == reflect.Ptr {
         inType = inType.Elem()
     }
+    if inType.Kind() != reflect.Struct {
+        return
+    }
 
     var pathParams = make([]string, 0)
     for _, pp := range strings.Split(path, "/") {
@@ -212,6 +215,9 @@ func (sg *swaggerGen) setInput(op *spec.Operation, path string, inType reflect.T
 func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
     if rType.Kind() == reflect.Ptr {
         rType = rType.Elem()
+    }
+    if rType.Kind() != reflect.Struct {
+        return
     }
 
     if swag.Definitions == nil {
