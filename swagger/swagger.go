@@ -297,7 +297,7 @@ func (sg *swaggerGen) addDefinition(swag *spec.Swagger, rType reflect.Type) {
                 sg.addDefinition(swag, fType)
             case reflect.Bool:
                 def.SetProperty(pt.Name, wrapFuncChain.Apply(spec.BoolProperty()))
-            case reflect.Interface:
+            case reflect.Interface, reflect.Map:
                 sub := &spec.Schema{}
                 sub.Typed("object", "")
                 def.SetProperty(pt.Name, wrapFuncChain.Apply(sub))
@@ -330,6 +330,8 @@ func setSwaggerParam(p *spec.Parameter, t reflect.Type, optional bool) *spec.Par
     }
     kind := t.Kind()
     switch kind {
+    case reflect.Map:
+        p.Typed("object", "")
     case reflect.Slice:
         switch t.Elem().Kind() {
         case reflect.String:
