@@ -1,7 +1,6 @@
 package swagger_test
 
 import (
-    "encoding/json"
     "fmt"
     "strings"
     "testing"
@@ -10,6 +9,7 @@ import (
     "github.com/clubpay/ronykit"
     "github.com/clubpay/ronykit/desc"
     "github.com/clubpay/ronykit/std/gateway/fasthttp"
+    "github.com/goccy/go-json"
 )
 
 type sampleReq struct {
