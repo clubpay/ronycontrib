@@ -60,9 +60,8 @@ type testService struct{}
 
 func (t testService) Desc() *desc.Service {
     return (&desc.Service{
-        Name:         "testService",
-        PreHandlers:  nil,
-        PostHandlers: nil,
+        Name: "testService",
+
     }).
             AddContract(
                 desc.NewContract().
