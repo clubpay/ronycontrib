@@ -3,7 +3,7 @@ module github.com/clubpay/ronycontrib
 go 1.17
 
 require (
-	github.com/clubpay/ronykit v0.6.24
+	github.com/clubpay/ronykit v0.7.1
 	github.com/go-openapi/spec v0.20.7
 	github.com/goccy/go-json v0.9.11
 	go.opentelemetry.io/contrib/propagators/b3 v1.10.0
@@ -29,6 +29,6 @@ require (
 	github.com/savsgio/gotils v0.0.0-20220530130905-52f3993e8d6d // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.40.0 // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
