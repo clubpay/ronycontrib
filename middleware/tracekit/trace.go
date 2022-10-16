@@ -90,14 +90,12 @@ func withTracer(cfg *config) ronykit.HandlerFunc {
     }
 
     return func(ctx *ronykit.Context) {
-        _, ok := ctx.Conn().(ronykit.RESTConn)
-        if ok {
-            spanOpts = append(spanOpts,
-                trace.WithAttributes(
-                    semconv.HTTPStatusCodeKey.Int(ctx.GetStatusCode()),
-                ),
-            )
-        }
+        userCtx, span := otel.Tracer(cfg.tracerName).
+                Start(
+                    traceCtx.Extract(ctx.Context(), traceCarrier(ctx)),
+                    ctx.Route(),
+                    spanOpts...,
+                )
 
         if cfg.dynTags != nil {
             dynTags := cfg.dynTags(ctx.Limited())
@@ -105,17 +103,17 @@ func withTracer(cfg *config) ronykit.HandlerFunc {
             for k, v := range cfg.dynTags(ctx.Limited()) {
                 kvs = append(kvs, attribute.String(k, v))
             }
-            spanOpts = append(spanOpts, trace.WithAttributes(kvs...))
+            span.SetAttributes(kvs...)
         }
 
-        userCtx, span := otel.Tracer(cfg.tracerName).
-                Start(
-                    traceCtx.Extract(ctx.Context(), traceCarrier(ctx)),
-                    ctx.Route(),
-                    spanOpts...,
-                )
         ctx.SetUserContext(userCtx)
         ctx.Next()
+
+        _, ok := ctx.Conn().(ronykit.RESTConn)
+        if ok {
+            span.SetAttributes(semconv.HTTPStatusCodeKey.Int(ctx.GetStatusCode()))
+        }
+
         span.End()
     }
 }
